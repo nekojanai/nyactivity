@@ -6,20 +6,24 @@ import (
 	"github.com/eiannone/keyboard"
 )
 
-func Init() (<-chan keyboard.KeyEvent, error) {
-	defer keyboard.Close()
-	key, err := keyboard.GetKeys(10)
+type Tracker struct {
+	KeyChannel <-chan keyboard.KeyEvent
+}
+
+func Init() *Tracker {
+	keys, err := keyboard.GetKeys(10)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println("Starting keyboard activity tracking...")
-	for {
-		event := <-keys
-		if event.Err != nil {
-			panic(event.Err)
-		}
-		if event.Key == keyboard.KeyEsc {
-			break
-		}
+	return &Tracker{
+		keys,
+	}
+}
+
+func Close() {
+	err := keyboard.Close()
+	if err != nil {
+		panic(err)
 	}
 }
